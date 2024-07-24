@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<div class="chat-detail">
+    <h1>Chat with 
+        {% if user == chat.customer %}
+            {{ chat.provider.username }}
+        {% else %}
+            {{ chat.customer.username }}
+        {% endif %}
+    </h1>
+    <div class="messages" id="chat-messages">
+        {% for message in messages %}
+            <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                <p><strong>{{ message.sender.username }}</strong>: {{ message.content }}</p>
+                <span class="timestamp">{{ message.timestamp }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    <form id="chat-form">
+        {% csrf_token %}
+        <input type="text" id="chat-message-input" required>
+        <button type="submit">Send</button>
+    </form>
+</div>
+<style>
+    .chat-detail {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .messages {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+    }
+    .message {
+        padding: 5px 10px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+    .message.sent {
+        background-color: #d1ffd1;
+        text-align: right;
+    }
+    .message.received {
+        background-color: #f1f1f1;
+    }
+    .timestamp {
+        font-size: 0.8em;
+        color: #888;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatId = "{{ chat.id }}";
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + chatId + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatMessages = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(data.sender === '{{ user.username }}' ? 'sent' : 'received');
+            messageElement.innerHTML = `<p><strong>${data.sender}</strong>: ${data.message}</p>`;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        document.getElementById('chat-form').onsubmit = function(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('chat-message-input');
+            const message = messageInput.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInput.value = '';
+        };
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ provider.name }}{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <img src="{{ MEDIA_URL }}{{ provider.profile_image.url }}" class="card-img-top" alt="{{ provider.name }}">
+    <div class="card-body">
+        <h5 class="card-title">{{ provider.name }}</h5>
+        <p class="card-text">{{ provider.description }}</p>
+        <p class="card-text">{{ provider.years_of_experience }} anos de experiência</p>
+        <p class="card-text">Valor médio: R$ {{ provider.average_rate }}</p>
+        <p><a href="{% url 'start_chat' provider.id %}">Entre em contato com o {{ provider.name }}</a></p>
+        <hr>
+        <h5>Serviços Realizados</h5>
+        <div class="row">
+            {% for service in provider.service_set.all %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.title }}">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ service.title }}</h6>
+                            <p class="card-text">{{ service.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <h5>Feedbacks</h5>
+        {% for feedback in provider.service_set.all %}
+            {% for f in feedback.feedback_set.all %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">Cliente: {{ f.customer.username }}</h6>
+                        <p class="card-text">Nota: {{ f.rating }}</p>
+                        <p class="card-text">{{ f.comment }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

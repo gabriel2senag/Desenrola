@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Bem-vindo ao Desenrola!</h1>
+    <p class="lead">Encontre os melhores prestadores de serviço na sua região.</p>
+    <hr class="my-4">
+    <p>Confira nossos prestadores de serviço mais contratados abaixo.</p>
+</div>
+
+<div class="row">
+    {% for provider in providers %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="{{ MEDIA_URL }}{{ provider.profile_image.url }}" class="card-img" alt="{{ provider.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ provider.name }}</h5>
+                    <p class="card-text">{{ provider.years_of_experience }} anos de experiência</p>
+                    <p class="card-text">Valor médio: R$ {{ provider.average_rate }}</p>
+                    <a href="{% url 'provider_detail' provider.id %}" class="btn btn-primary">Ver Perfil</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

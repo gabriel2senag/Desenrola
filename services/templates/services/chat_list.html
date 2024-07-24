@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}My Chats{% endblock %}
+
+{% block content %}
+<h1>Mensagens</h1>
+<ul>
+    {% for chat in object_list %}
+        <li>
+            <a href="{% url 'chat_detail' chat.id %}">
+                Conversas com: 
+                {% if user == chat.customer %}
+                    {{ chat.provider.username }}
+                {% else %}
+                    {{ chat.customer.username }}
+                {% endif %}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
